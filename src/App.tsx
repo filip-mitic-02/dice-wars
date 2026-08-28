@@ -12,6 +12,7 @@ export default function App() {
     gameState,
     gameTerritories,
     players,
+    getPlayerName,
     eliminatedPlayers,
     currentPlayer,
     round,
@@ -38,6 +39,7 @@ export default function App() {
             players={players}
             currentPlayer={currentPlayer}
             eliminatedPlayers={eliminatedPlayers}
+            getPlayerName={getPlayerName}
           />
 
           <main className="flex-1 flex flex-col items-center justify-center p-6 gap-4 relative overflow-hidden">
@@ -45,6 +47,7 @@ export default function App() {
               disabled={battleResult.isBattling}
               round={round}
               currentPlayer={currentPlayer}
+              currentPlayerName={getPlayerName(currentPlayer)}
               onEndTurn={handleEndTurn}
             />
 
@@ -64,6 +67,8 @@ export default function App() {
             isBattling={battleResult.isBattling}
             attacker={battleResult.attacker}
             defender={battleResult.defender}
+            attackerName={getPlayerName(battleResult.attacker)}
+            defenderName={getPlayerName(battleResult.defender)}
             attackerRoll={battleResult.attackerRoll}
             defenderRoll={battleResult.defenderRoll}
             attackerDiceCount={battleResult.attackerDiceCount}
@@ -75,7 +80,11 @@ export default function App() {
       )}
 
       {winner && (
-        <WinnerModal winner={winner} onReturnToMenu={handleReturnToMenu} />
+        <WinnerModal
+          winner={winner}
+          winnerName={getPlayerName(winner)}
+          onReturnToMenu={handleReturnToMenu}
+        />
       )}
 
       <ConfirmModal

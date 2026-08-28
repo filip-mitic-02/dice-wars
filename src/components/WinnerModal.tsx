@@ -3,11 +3,13 @@ import { PLAYER_COLORS } from "./GameMap";
 
 interface WinnerModalProps {
   winner: Player | null;
+  winnerName: string;
   onReturnToMenu: () => void;
 }
 
 export default function WinnerModal({
   winner,
+  winnerName,
   onReturnToMenu,
 }: WinnerModalProps) {
   if (!winner) return null;
@@ -24,7 +26,7 @@ export default function WinnerModal({
             style={{ backgroundColor: PLAYER_COLORS[winner] }}
           />
           <span className="text-xl font-bold text-white uppercase">
-            {winner.replace("player", "Igrač ")} je pobednik.
+            {winnerName} je pobednik.
           </span>
         </div>
         <button

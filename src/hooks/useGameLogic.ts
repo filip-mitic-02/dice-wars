@@ -23,6 +23,7 @@ export function useGameLogic() {
   const [gameTerritories, setGameTerritories] = useState<Territory[]>([]);
 
   const [players, setPlayers] = useState<Player[]>([]);
+  const [playerNames, setPlayerNames] = useState<Record<string, string>>({});
   const [eliminatedPlayers, setEliminatedPlayers] = useState<Player[]>([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(0);
   const [round, setRound] = useState<number>(1);
@@ -45,7 +46,10 @@ export function useGameLogic() {
 
   const currentPlayer = players[currentPlayerIndex];
 
-  const handleStartGame = (playerCount: number) => {
+  const handleStartGame = (
+    playerCount: number,
+    namesMap: Record<string, string>,
+  ) => {
     setBattleResult(initialBattleState);
 
     const activePlayers: Player[] = Array.from(
@@ -56,12 +60,17 @@ export function useGameLogic() {
     const initialMap = generateInitialMap(SERBIA_TERRITORIES, playerCount);
 
     setPlayers(activePlayers);
+    setPlayerNames(namesMap);
     setEliminatedPlayers([]);
     setCurrentPlayerIndex(0);
     setRound(1);
     setWinner(null);
     setGameTerritories(initialMap);
     setGameState("playing");
+  };
+
+  const getPlayerName = (player: Player | string): string => {
+    return playerNames[player] || player;
   };
 
   const handleAttack = (attackerId: string, defenderId: string) => {
@@ -177,6 +186,8 @@ export function useGameLogic() {
     gameState,
     gameTerritories,
     players,
+    playerNames,
+    getPlayerName,
     eliminatedPlayers,
     currentPlayer,
     round,

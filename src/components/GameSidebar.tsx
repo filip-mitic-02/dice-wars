@@ -6,6 +6,7 @@ interface GameSidebarProps {
   players: Player[];
   currentPlayer: Player;
   eliminatedPlayers: Player[];
+  getPlayerName: (player: Player) => string;
 }
 
 export default function GameSidebar({
@@ -13,6 +14,7 @@ export default function GameSidebar({
   players,
   currentPlayer,
   eliminatedPlayers,
+  getPlayerName,
 }: GameSidebarProps) {
   const totalTerritories = territories.length;
   const totalDiceOnMap = territories.reduce((acc, t) => acc + t.dice, 0);
@@ -28,6 +30,7 @@ export default function GameSidebar({
 
     return {
       player,
+      getPlayerName,
       territoryCount,
       totalDice,
       mapPercentage,

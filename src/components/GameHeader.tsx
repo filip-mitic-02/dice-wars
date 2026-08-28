@@ -6,6 +6,7 @@ interface GameHeaderProps {
   disabled: boolean;
   round: number;
   currentPlayer: Player;
+  currentPlayerName: string;
   onEndTurn: () => void;
 }
 
@@ -13,6 +14,7 @@ export default function GameHeader({
   disabled,
   round,
   currentPlayer,
+  currentPlayerName,
   onEndTurn,
 }: GameHeaderProps) {
   const [isCooldown, setIsCooldown] = useState(false);
@@ -55,7 +57,7 @@ export default function GameHeader({
         <span className="text-black text-sm font-semibold">Na potezu:</span>
         <div className="flex items-center gap-2">
           <span className="font-bold text-black uppercase tracking-wide">
-            {currentPlayer.replace("player", "Igrač ")}
+            {currentPlayerName}
           </span>
         </div>
       </div>

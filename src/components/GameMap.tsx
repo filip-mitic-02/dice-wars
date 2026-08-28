@@ -17,6 +17,7 @@ export const PLAYER_COLORS: Record<Player, string> = {
 interface GameMapProps {
   territories: Territory[];
   currentPlayer: Player;
+  disabled?: boolean;
   handleEndGame: () => void;
   onAttack?: (attackerId: string, defenderId: string) => void;
 }
@@ -24,6 +25,7 @@ interface GameMapProps {
 export default function GameMap({
   territories,
   currentPlayer,
+  disabled = false,
   handleEndGame,
   onAttack,
 }: GameMapProps) {
@@ -34,14 +36,20 @@ export default function GameMap({
     mapRef,
     territories,
     currentPlayer,
+    disabled,
     onAttack,
   );
 
   return (
-    <div ref={mapRef} className="relative w-[700px]">
+    <div
+      ref={mapRef}
+      className={`relative w-[700px] transition-opacity ${
+        disabled ? "pointer-events-none" : ""
+      }`}
+    >
       <button
         onClick={handleEndGame}
-        className="fixed top-6 right-85 z-50 px-4 py-2 bg-slate-800/90 hover:bg-slate-700 text-white text-sm font-semibold rounded-xl border border-slate-600 backdrop-blur-md shadow-xl transition-all active:scale-95 cursor-pointer"
+        className="fixed top-6 right-85 z-50 px-4 py-2 bg-slate-800/90 hover:bg-slate-700 text-white text-sm font-semibold rounded-xl border border-slate-600 backdrop-blur-md shadow-xl transition-all active:scale-95 cursor-pointer pointer-events-auto"
       >
         Napusti igru
       </button>

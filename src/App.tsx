@@ -51,6 +51,7 @@ export default function App() {
               <GameMap
                 territories={gameTerritories}
                 currentPlayer={currentPlayer}
+                disabled={battleResult.isOpen}
                 handleEndGame={() => setIsModalOpen(true)}
                 onAttack={handleAttack}
               />

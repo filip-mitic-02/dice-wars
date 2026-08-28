@@ -5,6 +5,18 @@ import { generateInitialMap } from "../helperFunctions/mapGenerators";
 import { rollDice } from "../helperFunctions/rollDice";
 import { distributeEndOfRoundDice } from "../helperFunctions/distributeEndOfRoundDice";
 
+const initialBattleState = {
+  isOpen: false,
+  attacker: "player1" as Player,
+  defender: "player2" as Player,
+  attackerRoll: 0,
+  defenderRoll: 0,
+  attackerDiceCount: 0,
+  defenderDiceCount: 0,
+  hasWon: false,
+  pendingTerritories: [] as Territory[],
+};
+
 export function useGameLogic() {
   const [gameState, setGameState] = useState<"menu" | "playing">("menu");
   const [gameTerritories, setGameTerritories] = useState<Territory[]>([]);
@@ -27,21 +39,13 @@ export function useGameLogic() {
     defenderDiceCount: number;
     hasWon: boolean;
     pendingTerritories: Territory[];
-  }>({
-    isOpen: false,
-    attacker: "player1",
-    defender: "player2",
-    attackerRoll: 0,
-    defenderRoll: 0,
-    attackerDiceCount: 0,
-    defenderDiceCount: 0,
-    hasWon: false,
-    pendingTerritories: [],
-  });
+  }>(initialBattleState);
 
   const currentPlayer = players[currentPlayerIndex];
 
   const handleStartGame = (playerCount: number) => {
+    setBattleResult(initialBattleState);
+
     const activePlayers: Player[] = Array.from(
       { length: playerCount },
       (_, i) => `player${i + 1}` as Player,
@@ -68,6 +72,7 @@ export function useGameLogic() {
     const defenderRoll = rollDice(defender.dice);
     const hasWon = attackerRoll > defenderRoll;
 
+    // Izračunavamo kako će mapa izgledati POSLE borbe
     const nextTerritories = gameTerritories.map((territory) => {
       if (hasWon) {
         if (territory.id === attackerId) return { ...territory, dice: 1 };
@@ -84,6 +89,8 @@ export function useGameLogic() {
       return territory;
     });
 
+    // NE menjamo odmah gameTerritories!
+    // Samo otvaramo borbu i čuvamo izračunat ishod u pendingTerritories
     setBattleResult({
       isOpen: true,
       attacker: attacker.owner,
@@ -98,10 +105,19 @@ export function useGameLogic() {
   };
 
   const handleCloseBattleModal = () => {
+    // 1. Tek sada, po zatvaranju tajmera/panela, menjamo teritorije na mapi
     const updatedTerritories = battleResult.pendingTerritories;
-    setGameTerritories(updatedTerritories);
-    setBattleResult((prev) => ({ ...prev, isOpen: false }));
+    if (updatedTerritories.length > 0) {
+      setGameTerritories(updatedTerritories);
+    }
 
+    // 2. Samo zatvaramo panel (isOpen: false), a čuvamo rezultate kockica za ubuduće
+    setBattleResult((prev) => ({
+      ...prev,
+      isOpen: false,
+    }));
+
+    // 3. Provera eliminacija i pobednika
     const activePlayers = players.filter((p) =>
       updatedTerritories.some((t) => t.owner === p),
     );
@@ -141,11 +157,13 @@ export function useGameLogic() {
   };
 
   const confirmExit = () => {
+    setBattleResult(initialBattleState);
     setIsModalOpen(false);
     setGameState("menu");
   };
 
   const handleReturnToMenu = () => {
+    setBattleResult(initialBattleState);
     setGameState("menu");
     setWinner(null);
   };

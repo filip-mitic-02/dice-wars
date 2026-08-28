@@ -7,6 +7,7 @@ export function useTerritoryAttack(
   mapRef: RefObject<HTMLDivElement | null>,
   territories: Territory[],
   currentPlayer: Player,
+  disabled: boolean = false,
   onAttack?: (attackerId: string, defenderId: string) => void,
 ) {
   const [attackerId, setAttackerId] = useState<string | null>(null);
@@ -23,6 +24,9 @@ export function useTerritoryAttack(
 
   // Logika klika na teritoriju
   const handleTerritoryClick = (clickedTerritory: Territory) => {
+    // Ako je napad u toku / onemogućeno kliktanje, ne radi ništa
+    if (disabled) return;
+
     if (!attackerId) {
       if (
         clickedTerritory.owner === currentPlayer &&
@@ -72,7 +76,7 @@ export function useTerritoryAttack(
       if (!path) return;
 
       const baseColor = PLAYER_COLORS[territory.owner];
-      const isHovered = hoveredTerritoryId === territory.id;
+      const isHovered = !disabled && hoveredTerritoryId === territory.id;
       const isAttacker = attackerId === territory.id;
       const isDefender = defenderId === territory.id;
 
@@ -91,14 +95,18 @@ export function useTerritoryAttack(
         path.style.strokeWidth = isHovered ? "2" : "1";
       }
 
-      path.style.cursor = "pointer";
+      path.style.cursor = disabled ? "not-allowed" : "pointer";
 
       if (isHovered || isAttacker || isDefender) {
         path.parentNode?.appendChild(path);
       }
 
-      path.onmouseenter = () => setHoveredTerritoryId(territory.id);
-      path.onmouseleave = () => setHoveredTerritoryId(null);
+      path.onmouseenter = () => {
+        if (!disabled) setHoveredTerritoryId(territory.id);
+      };
+      path.onmouseleave = () => {
+        if (!disabled) setHoveredTerritoryId(null);
+      };
       path.onclick = () => handleTerritoryClick(territory);
     });
   }, [
@@ -108,6 +116,7 @@ export function useTerritoryAttack(
     defenderId,
     territories,
     currentPlayer,
+    disabled,
   ]);
 
   return { attackerId, defenderId };

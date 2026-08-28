@@ -41,16 +41,16 @@ export default function BattlePanel({
         attacker: Math.floor(Math.random() * (attackerDiceCount * 6)) + 1,
         defender: Math.floor(Math.random() * (defenderDiceCount * 6)) + 1,
       });
-    }, 50);
+    }, 25);
 
     const timeout = setTimeout(() => {
       clearInterval(interval);
       setIsRolling(false);
-    }, 1000);
+    }, 500);
 
     const autoCloseTimeout = setTimeout(() => {
       onClose();
-    }, 3000);
+    }, 1500);
 
     return () => {
       clearInterval(interval);

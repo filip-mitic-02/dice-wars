@@ -7,6 +7,7 @@ import { distributeEndOfRoundDice } from "../helperFunctions/distributeEndOfRoun
 
 const initialBattleState = {
   isOpen: false,
+  isBattling: false,
   attacker: "player1" as Player,
   defender: "player2" as Player,
   attackerRoll: 0,
@@ -31,6 +32,7 @@ export function useGameLogic() {
 
   const [battleResult, setBattleResult] = useState<{
     isOpen: boolean;
+    isBattling: boolean;
     attacker: Player;
     defender: Player;
     attackerRoll: number;
@@ -63,6 +65,8 @@ export function useGameLogic() {
   };
 
   const handleAttack = (attackerId: string, defenderId: string) => {
+    if (battleResult.isBattling) return;
+
     const attacker = gameTerritories.find((t) => t.id === attackerId);
     const defender = gameTerritories.find((t) => t.id === defenderId);
 
@@ -93,6 +97,7 @@ export function useGameLogic() {
     // Samo otvaramo borbu i čuvamo izračunat ishod u pendingTerritories
     setBattleResult({
       isOpen: true,
+      isBattling: true,
       attacker: attacker.owner,
       defender: defender.owner,
       attackerRoll,
@@ -114,7 +119,7 @@ export function useGameLogic() {
     // 2. Samo zatvaramo panel (isOpen: false), a čuvamo rezultate kockica za ubuduće
     setBattleResult((prev) => ({
       ...prev,
-      isOpen: false,
+      isBattling: false,
     }));
 
     // 3. Provera eliminacija i pobednika

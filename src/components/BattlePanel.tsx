@@ -4,6 +4,7 @@ import { PLAYER_COLORS } from "./GameMap";
 
 interface BattlePanelProps {
   isOpen: boolean;
+  isBattling: boolean;
   attacker: Player;
   defender: Player;
   attackerRoll: number;
@@ -16,6 +17,7 @@ interface BattlePanelProps {
 
 export default function BattlePanel({
   isOpen,
+  isBattling,
   attacker,
   defender,
   attackerRoll,
@@ -29,7 +31,7 @@ export default function BattlePanel({
   const [tempRolls, setTempRolls] = useState({ attacker: 0, defender: 0 });
 
   useEffect(() => {
-    if (!isOpen) {
+    if (!isBattling) {
       setIsRolling(false);
       return;
     }
@@ -57,7 +59,7 @@ export default function BattlePanel({
       clearTimeout(timeout);
       clearTimeout(autoCloseTimeout);
     };
-  }, [isOpen, attackerDiceCount, defenderDiceCount]);
+  }, [isBattling, attackerDiceCount, defenderDiceCount]);
 
   if (!isOpen) {
     return (

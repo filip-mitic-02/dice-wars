@@ -1,17 +1,45 @@
+import { useState, useRef, useEffect } from "react";
 import type { Player } from "../data/territories";
 import { PLAYER_COLORS } from "./GameMap";
 
 interface GameHeaderProps {
+  disabled: boolean;
   round: number;
   currentPlayer: Player;
   onEndTurn: () => void;
 }
 
 export default function GameHeader({
+  disabled,
   round,
   currentPlayer,
   onEndTurn,
 }: GameHeaderProps) {
+  const [isCooldown, setIsCooldown] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleClick = () => {
+    if (disabled || isCooldown) return;
+
+    onEndTurn();
+
+    setIsCooldown(true);
+
+    timeoutRef.current = setTimeout(() => {
+      setIsCooldown(false);
+    }, 1000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const isButtonDisabled = disabled || isCooldown;
+
   return (
     <div
       className="flex items-center gap-6 bg-slate-800/90 border border-slate-700 px-6 py-3 rounded-2xl shadow-xl backdrop-blur-md z-10"
@@ -33,8 +61,13 @@ export default function GameHeader({
       </div>
 
       <button
-        onClick={onEndTurn}
-        className="ml-4 px-4 py-2 bg-slate-900 hover:scale-105 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 active:scale-95 transition-all text-sm cursor-pointer"
+        disabled={isButtonDisabled}
+        onClick={handleClick}
+        className={`ml-4 px-4 py-2 bg-slate-900 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 text-sm transition-all ${
+          isButtonDisabled
+            ? "opacity-50 cursor-not-allowed scale-100"
+            : "hover:scale-105 active:scale-95 cursor-pointer"
+        }`}
       >
         Kraj poteza
       </button>

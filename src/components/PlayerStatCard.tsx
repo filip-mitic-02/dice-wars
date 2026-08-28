@@ -3,6 +3,7 @@ import { PLAYER_COLORS } from "./GameMap";
 
 export interface PlayerStat {
   player: Player;
+  getPlayerName: (player: Player) => string;
   territoryCount: number;
   totalDice: number;
   mapPercentage: number;
@@ -32,7 +33,7 @@ export default function PlayerStatCard({ stat }: PlayerStatCardProps) {
             style={{ backgroundColor: PLAYER_COLORS[stat.player] }}
           />
           <span className="text-xs font-bold text-white uppercase">
-            {stat.player.replace("player", "Igrač ")}
+            {stat.getPlayerName(stat.player)}
           </span>
           {stat.isCurrent && !stat.isEliminated && (
             <span className="text-[10px] font-black text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse border border-amber-400/30">

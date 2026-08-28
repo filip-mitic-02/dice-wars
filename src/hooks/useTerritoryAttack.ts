@@ -16,15 +16,12 @@ export function useTerritoryAttack(
     null,
   );
 
-  // Reset na promenu igrača
   useEffect(() => {
     setAttackerId(null);
     setDefenderId(null);
   }, [currentPlayer]);
 
-  // Logika klika na teritoriju
   const handleTerritoryClick = (clickedTerritory: Territory) => {
-    // Ako je napad u toku / onemogućeno kliktanje, ne radi ništa
     if (disabled) return;
 
     if (!attackerId) {
@@ -65,7 +62,6 @@ export function useTerritoryAttack(
     }
   };
 
-  // Manipulacija SVG elementima
   useEffect(() => {
     if (!mapRef.current) return;
     const svg = mapRef.current.querySelector("svg");

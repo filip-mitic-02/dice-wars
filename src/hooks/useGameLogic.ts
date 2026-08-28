@@ -3,7 +3,8 @@ import type { Territory, Player } from "../data/territories";
 import { SERBIA_TERRITORIES } from "../data/maps/serbia";
 import { generateInitialMap } from "../helperFunctions/mapGenerators";
 import { rollDice } from "../helperFunctions/rollDice";
-import { distributeEndOfRoundDice } from "../helperFunctions/distributeEndOfRoundDice";
+import { distributeDiceToPlayer } from "../helperFunctions/distributeDiceToPlayer";
+import { getMaxConnectedTerritories } from "../helperFunctions/getConnectedTerritories";
 
 const initialBattleState = {
   isOpen: false,
@@ -85,7 +86,6 @@ export function useGameLogic() {
     const defenderRoll = rollDice(defender.dice);
     const hasWon = attackerRoll > defenderRoll;
 
-    // Izračunavamo kako će mapa izgledati POSLE borbe
     const nextTerritories = gameTerritories.map((territory) => {
       if (hasWon) {
         if (territory.id === attackerId) return { ...territory, dice: 1 };
@@ -102,8 +102,6 @@ export function useGameLogic() {
       return territory;
     });
 
-    // NE menjamo odmah gameTerritories!
-    // Samo otvaramo borbu i čuvamo izračunat ishod u pendingTerritories
     setBattleResult({
       isOpen: true,
       isBattling: true,
@@ -119,19 +117,16 @@ export function useGameLogic() {
   };
 
   const handleCloseBattleModal = () => {
-    // 1. Tek sada, po zatvaranju tajmera/panela, menjamo teritorije na mapi
     const updatedTerritories = battleResult.pendingTerritories;
     if (updatedTerritories.length > 0) {
       setGameTerritories(updatedTerritories);
     }
 
-    // 2. Samo zatvaramo panel (isOpen: false), a čuvamo rezultate kockica za ubuduće
     setBattleResult((prev) => ({
       ...prev,
       isBattling: false,
     }));
 
-    // 3. Provera eliminacija i pobednika
     const activePlayers = players.filter((p) =>
       updatedTerritories.some((t) => t.owner === p),
     );
@@ -154,6 +149,19 @@ export function useGameLogic() {
 
     if (activePlayers.length <= 1) return;
 
+    const maxConnected = getMaxConnectedTerritories(
+      gameTerritories,
+      currentPlayer,
+    );
+
+    const diceToAward = maxConnected;
+
+    const updatedTerritories = distributeDiceToPlayer(
+      gameTerritories,
+      currentPlayer,
+      diceToAward,
+    );
+
     let nextIndex = (currentPlayerIndex + 1) % players.length;
 
     while (eliminatedPlayers.includes(players[nextIndex])) {
@@ -162,11 +170,9 @@ export function useGameLogic() {
 
     if (nextIndex <= currentPlayerIndex) {
       setRound((prev) => prev + 1);
-      setGameTerritories((prevTerritories) =>
-        distributeEndOfRoundDice(prevTerritories, activePlayers),
-      );
     }
 
+    setGameTerritories(updatedTerritories);
     setCurrentPlayerIndex(nextIndex);
   };
 

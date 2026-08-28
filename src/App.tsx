@@ -42,6 +42,7 @@ export default function App() {
 
           <main className="flex-1 flex flex-col items-center justify-center p-6 gap-4 relative overflow-hidden">
             <GameHeader
+              disabled={battleResult.isBattling}
               round={round}
               currentPlayer={currentPlayer}
               onEndTurn={handleEndTurn}
@@ -51,7 +52,7 @@ export default function App() {
               <GameMap
                 territories={gameTerritories}
                 currentPlayer={currentPlayer}
-                disabled={battleResult.isOpen}
+                disabled={battleResult.isBattling}
                 handleEndGame={() => setIsModalOpen(true)}
                 onAttack={handleAttack}
               />
@@ -60,6 +61,7 @@ export default function App() {
 
           <BattlePanel
             isOpen={battleResult.isOpen}
+            isBattling={battleResult.isBattling}
             attacker={battleResult.attacker}
             defender={battleResult.defender}
             attackerRoll={battleResult.attackerRoll}

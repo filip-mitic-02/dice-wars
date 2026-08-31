@@ -1,10 +1,16 @@
 import { useState } from "react";
-import type { Territory, Player } from "../data/territories";
+import type { Territory, Player, MapId } from "../data/territories";
 import { SERBIA_TERRITORIES } from "../data/maps/serbia";
+import { BULGARIA_TERRITORIES } from "../data/maps/bulgaria";
 import { generateInitialMap } from "../helperFunctions/mapGenerators";
 import { rollDice } from "../helperFunctions/rollDice";
 import { distributeDiceToPlayer } from "../helperFunctions/distributeDiceToPlayer";
 import { getMaxConnectedTerritories } from "../helperFunctions/getConnectedTerritories";
+
+const MAP_TERRITORIES = {
+  serbia: SERBIA_TERRITORIES,
+  bulgaria: BULGARIA_TERRITORIES,
+};
 
 const initialBattleState = {
   isOpen: false,
@@ -20,8 +26,11 @@ const initialBattleState = {
 };
 
 export function useGameLogic() {
-  const [gameState, setGameState] = useState<"menu" | "playing">("menu");
+  const [gameState, setGameState] = useState<"menu" | "mapSelect" | "playing">(
+    "menu",
+  );
   const [gameTerritories, setGameTerritories] = useState<Territory[]>([]);
+  const [mapId, setMapId] = useState<MapId>("serbia");
 
   const [players, setPlayers] = useState<Player[]>([]);
   const [playerNames, setPlayerNames] = useState<Record<string, string>>({});
@@ -58,16 +67,28 @@ export function useGameLogic() {
       (_, i) => `player${i + 1}` as Player,
     );
 
-    const initialMap = generateInitialMap(SERBIA_TERRITORIES, playerCount);
-
     setPlayers(activePlayers);
     setPlayerNames(namesMap);
     setEliminatedPlayers([]);
     setCurrentPlayerIndex(0);
     setRound(1);
     setWinner(null);
+    setGameState("mapSelect");
+  };
+
+  const handleSelectMap = (selectedMapId: MapId) => {
+    const initialMap = generateInitialMap(
+      MAP_TERRITORIES[selectedMapId],
+      players.length,
+    );
+
+    setMapId(selectedMapId);
     setGameTerritories(initialMap);
     setGameState("playing");
+  };
+
+  const handleCancelMapSelect = () => {
+    setGameState("menu");
   };
 
   const getPlayerName = (player: Player | string): string => {
@@ -191,6 +212,7 @@ export function useGameLogic() {
   return {
     gameState,
     gameTerritories,
+    mapId,
     players,
     playerNames,
     getPlayerName,
@@ -202,6 +224,8 @@ export function useGameLogic() {
     battleResult,
     setIsModalOpen,
     handleStartGame,
+    handleSelectMap,
+    handleCancelMapSelect,
     handleAttack,
     handleCloseBattleModal,
     handleEndTurn,

@@ -1,5 +1,6 @@
 import GameMap from "./components/GameMap";
 import MainMenu from "./components/MainMenu";
+import MapSelectMenu from "./components/MapSelectMenu";
 import ConfirmModal from "./components/ConfirmModal";
 import BattlePanel from "./components/BattlePanel";
 import GameSidebar from "./components/GameSidebar";
@@ -11,6 +12,7 @@ export default function App() {
   const {
     gameState,
     gameTerritories,
+    mapId,
     players,
     getPlayerName,
     eliminatedPlayers,
@@ -21,6 +23,8 @@ export default function App() {
     battleResult,
     setIsModalOpen,
     handleStartGame,
+    handleSelectMap,
+    handleCancelMapSelect,
     handleAttack,
     handleCloseBattleModal,
     handleEndTurn,
@@ -32,6 +36,11 @@ export default function App() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 select-none">
       {gameState === "menu" ? (
         <MainMenu onStartGame={handleStartGame} />
+      ) : gameState === "mapSelect" ? (
+        <MapSelectMenu
+          onSelectMap={handleSelectMap}
+          onBack={handleCancelMapSelect}
+        />
       ) : (
         <div className="flex h-screen w-full bg-slate-900 overflow-hidden">
           <GameSidebar
@@ -55,6 +64,7 @@ export default function App() {
               <GameMap
                 territories={gameTerritories}
                 currentPlayer={currentPlayer}
+                mapId={mapId}
                 disabled={battleResult.isBattling}
                 handleEndGame={() => setIsModalOpen(true)}
                 onAttack={handleAttack}

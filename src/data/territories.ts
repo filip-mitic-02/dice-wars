@@ -22,3 +22,5 @@ export interface Territory extends BaseTerritory {
   owner: Player;
   dice: number;
 }
+
+export type MapId = "serbia" | "bulgaria";

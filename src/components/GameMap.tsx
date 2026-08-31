@@ -1,9 +1,20 @@
 import { useRef } from "react";
 import SerbiaMap from "../assets/maps/serbia.svg?react";
+import BulgariaMap from "../assets/maps/bulgaria.svg?react";
 import TerritoryBadge from "./TerritoryBadge";
-import type { Player, Territory } from "../data/territories.ts";
+import type { MapId, Player, Territory } from "../data/territories.ts";
 import { useTerritoryPositions } from "../hooks/useTerritoryPositions";
 import { useTerritoryAttack } from "../hooks/useTerritoryAttack";
+
+const MAP_COMPONENTS: Record<MapId, typeof SerbiaMap> = {
+  serbia: SerbiaMap,
+  bulgaria: BulgariaMap,
+};
+
+const MAP_MAX_WIDTHS: Record<MapId, string> = {
+  serbia: "max-w-[700px]",
+  bulgaria: "max-w-[950px]",
+};
 
 export const PLAYER_COLORS: Record<Player, string> = {
   player1: "#2563eb",
@@ -17,6 +28,7 @@ export const PLAYER_COLORS: Record<Player, string> = {
 interface GameMapProps {
   territories: Territory[];
   currentPlayer: Player;
+  mapId: MapId;
   disabled?: boolean;
   handleEndGame: () => void;
   onAttack?: (attackerId: string, defenderId: string) => void;
@@ -25,11 +37,13 @@ interface GameMapProps {
 export default function GameMap({
   territories,
   currentPlayer,
+  mapId,
   disabled = false,
   handleEndGame,
   onAttack,
 }: GameMapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
+  const MapComponent = MAP_COMPONENTS[mapId];
 
   const positions = useTerritoryPositions(mapRef, territories);
   const { attackerId, defenderId } = useTerritoryAttack(
@@ -43,7 +57,7 @@ export default function GameMap({
   return (
     <div
       ref={mapRef}
-      className={`relative w-[700px] transition-opacity ${
+      className={`relative w-full ${MAP_MAX_WIDTHS[mapId]} mx-auto transition-opacity ${
         disabled ? "pointer-events-none" : ""
       }`}
     >
@@ -54,9 +68,9 @@ export default function GameMap({
         Napusti igru
       </button>
 
-      <SerbiaMap className="block w-full h-auto" />
+      <MapComponent className="block w-full h-auto" />
 
-      {territories.map((territory) => (
+      {territories.map((territory: Territory) => (
         <TerritoryBadge
           key={territory.id}
           territory={territory}

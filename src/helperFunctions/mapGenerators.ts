@@ -21,6 +21,7 @@ function countNeighborConflicts(
 export function generateInitialMap(
   baseTerritories: BaseTerritory[],
   playerCount: number,
+  totalDiceOnMap = 75,
 ): Territory[] {
   const players: Player[] = Array.from(
     { length: playerCount },
@@ -94,9 +95,35 @@ export function generateInitialMap(
     extraPlayerIndex++;
   }
 
-  return baseTerritories.map((base) => ({
+  const territoriesWithOwners: Territory[] = baseTerritories.map((base) => ({
     ...base,
     owner: assignments[base.id],
-    dice: 2,
+    dice: 1,
   }));
+
+  const dicePerPlayer = Math.floor(totalDiceOnMap / playerCount);
+
+  players.forEach((player) => {
+    const playerTerritories = territoriesWithOwners.filter(
+      (t) => t.owner === player,
+    );
+
+    let remainingDice = dicePerPlayer - playerTerritories.length;
+
+    while (remainingDice > 0) {
+      const validTerritories = playerTerritories.filter((t) => t.dice < 8);
+
+      if (validTerritories.length === 0) break;
+
+      const territory =
+        validTerritories[Math.floor(Math.random() * validTerritories.length)];
+      const maxAddable = Math.min(remainingDice, 8 - territory.dice);
+      const amount = 1 + Math.floor(Math.random() * maxAddable);
+
+      territory.dice += amount;
+      remainingDice -= amount;
+    }
+  });
+
+  return territoriesWithOwners;
 }
